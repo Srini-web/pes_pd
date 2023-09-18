@@ -106,7 +106,7 @@ run_synthesis
 
 - A synthesis successful message must be displayed.
 
-![s9](https://github.com/Srini-web/pes_pd/assets/77874288/b733a107-7da1-4527-8f22-b246f291cb80)
+![s9](https://github.com/Srini-web/pes_pd/assets/77874288/b733a107-7da1-4527-8f22-b246f291cb80) 
 
 - The flop ratio can be calculated by using:
 ```
@@ -119,11 +119,12 @@ No. of flops/No. of cells = 1613/14876 = 0.108
 - Under the runs folder we can check out the netlist file generated after synthesis
 </details>
 
+</details>
 
+##  Day 2
 
-
-## Day 2
 ### Chip Floor Planning Considerations
+
 #### Theory
 
 <details>
