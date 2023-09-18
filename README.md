@@ -37,10 +37,9 @@ A simplified RTL to GDSII Flow is :
 - Sign Off - Perform physical verification such as DRC(Design Rule Check) and LVS(Layout vs Synthesis). Also perform STA(Static Timiing Analysis).
 </details>
 
-
+#### Labs  
 <details>
 
-#### Labs  
   <summary>OpenLANE ASIC Flow</summary>
 
   ![p1](https://github.com/Srini-web/pes_pd/assets/77874288/48bb6b45-fab9-4d96-bf7b-3a64ff3532f4)
