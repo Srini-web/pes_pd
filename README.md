@@ -39,8 +39,9 @@ A simplified RTL to GDSII Flow is :
 
 
 <details>
-  
-  <summary>OpenLANE ASIC Flow(Labs)</summary>
+
+#### Labs  
+  <summary>OpenLANE ASIC Flow</summary>
 
   ![p1](https://github.com/Srini-web/pes_pd/assets/77874288/48bb6b45-fab9-4d96-bf7b-3a64ff3532f4)
 
