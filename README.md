@@ -535,4 +535,222 @@ cif see nwell_missing
   ![s14nwellerror](https://github.com/Srini-web/pes_pd/assets/77874288/897c7e2d-2120-4201-aca4-0ac6c6405602)
 </details>
 
+## Day 4
+### Pre-layout timing analysis and importance of good clock tree
+#### Labs
+<details>
+  
+  <summary>Convert Grid Info to Track Info</summary>
+- We must go to the following directory and type
+```
+less tracks.info
+```
+
+![s1lesstracksinfo](https://github.com/Srini-web/pes_pd/assets/77874288/69dddfc6-10d4-4dc2-85d9-cbae0c0d3342)
+
+- The 'tracks.info' file is used during the routing stage.
+- Routes are the metal traces.
+- Since the PNR is an automated flow, we need to specify where all we want the routes to go.
+  ![s2grid](https://github.com/Srini-web/pes_pd/assets/77874288/6b1142cb-0354-4fdf-bb83-08f249c0a381)
+
+- Now we converge the grid definition in the layout to track definition, by typing the following command
+![s2 2grid](https://github.com/Srini-web/pes_pd/assets/77874288/62816399-9f33-4a35-bc7d-eb3d00a283b3)
+
+- The following is the result.
+- This shows that the routing of 'li1' layer can happen only along this grid
+
+![s3ay](https://github.com/Srini-web/pes_pd/assets/77874288/3d680298-893a-47fc-a02c-7cc54c8d7514)
+
+- Having the ports at the intersection of horizontal and vertical tracks ensure that the route can reach that port from the 'y' as well as 'x' direction.
+- The next requirement is that the width of the cell should be the odd multiple of xpitch which is '0.46' as seen in the 'tracks.info' file.
+- As we can see it encloses two full boxes and two halves of one box, totally making three boxes as indicated by the white rectangle.
+- 
+</details>
+
+<details>
+  
+  <summary>Convert Magic Layout to Standard Cell LEF</summary>
+**Convert Magic Layout to Standard Cell LEF**
+- In the tkcon window of the 'sky130_inv.mag' file we type
+```
+save sky130_vsdinv.mag
+```
+to make our own .mag file
+- To make the .lef file we type
+```
+lef write
+```
+to make our own lef file.
+
+- Type ```less sky130_vsdinv.lef```.
+
+![s4lefwrite](https://github.com/Srini-web/pes_pd/assets/77874288/e5cb32e3-2253-4f0f-8b98-c6ba06c47e45)
+
+- The .lef file is as follows
+  
+![s5openlef](https://github.com/Srini-web/pes_pd/assets/77874288/c65df412-5cee-49a1-8592-5a7ca43a1587)
+
+</details>
+<details>
+  
+  <summary>Steps to Include New Cell in Synthesis</summary>
+
+- We copy the .mag file that we created to the 'src' folder of picorv32a folder.
+  ![s6filecopy](https://github.com/Srini-web/pes_pd/assets/77874288/0af8e96f-5d52-4918-8842-8ea7986030e3)
+
+- We then perform this copy command.
+![s7configedit](https://github.com/Srini-web/pes_pd/assets/77874288/c0c01abb-b191-48fc-8872-3d2141627831)
+
+- Next we modify the 'config.tcl' file in the picorv32a folder as follows.
+- Open the OpenLANE interactive window and retrieve the 0.9 package.
+![s8openlane](https://github.com/Srini-web/pes_pd/assets/77874288/13e36e31-ae75-40bc-ab36-e425bf231899)
+
+- Type the following
+```
+prep -design picorv32a -tag 16-09_19-58 -overwrite
+set lefs [glob $::env(DESIGN_DIR)/src/*.lef]
+add_lefs -src $lefs 
+```
+- Next we type ```run_synthesis```.
+
+![s9synth1](https://github.com/Srini-web/pes_pd/assets/77874288/59c24d91-767b-45c9-a42e-d3e64b2d6cc0)
+
+- The following results are displayed.
+![s10synth2](https://github.com/Srini-web/pes_pd/assets/77874288/d7481d02-2e85-483d-ba2d-407c6b37efd0)
+
+- To run floorplan and placement we type
+```
+init_floorplan
+run_placement
+```
+![s10synth2](https://github.com/Srini-web/pes_pd/assets/77874288/89b4c53d-0e7c-476f-bc5d-71e7a383163d)
+
+- Now to view the design we type the command
+```
+magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/magic/sky130A.tech lef read ../../tmp/merged.lef def read picorv32a.placement.def &
+```
+
+![s12placement](https://github.com/Srini-web/pes_pd/assets/77874288/ea3005d0-e8d3-4968-8598-b9eeb5706d72)
+
+- The following is displayed.
+- Zooming into the design using 'z' we can see the sky130_vsdinv than we defined.
+- We have plugged in our custon cell in the OpenLANE flow.
+</details>
+
+###### The Floorplan zoomed in and instace id as filled in the sheets
+<details>
+  <summary>The Floorplan zoomed </summary>
+  
+   ![INSTANCE](https://github.com/Srini-web/pes_pd/assets/77874288/14360d13-8fde-4878-bce1-d4ddd873ffa1)
+   
+</details>
+
+<details>
+  
+  <summary>Timing Analysis with Ideal Clocks using OpenSTA</summary>
+
+**Configure OpenSTA for Post-Synth Timing Analysis**
+- We must create two files
+
+![p13](https://github.com/Srini-web/pes_pd/assets/77874288/982ac92f-1a3f-43d8-a960-9a3728806806)
+
+- The first one must be in the openlane directory
+- This file is known as the 'pre_sta.conf' file.
+
+![p14](https://github.com/Srini-web/pes_pd/assets/77874288/b48945a1-4ec6-4972-be3d-913a34b88f9a)
+
+- The second is the my_base.sdc file.
+- This should be in the 'src/sky130' directory under the picorv32a directory.
+
+- To run the timing analysis we type
+```
+sta pre_sta.conf
+```
+<img width="551" alt="p15" src="https://github.com/Srini-web/pes_pd/assets/77874288/70547d14-0f73-4f4c-982f-81a8d6ce426c">
+
+- Following result is displayed
+- There is a slack violation
+
+![p16](https://github.com/Srini-web/pes_pd/assets/77874288/94ce30cc-2e58-4955-a127-58883826896b)
+
+- Settinf MAX_FANOUT value to 4 reduces the slack violation.
+
+</details>
+
+###### Clock Tree Synthesis TritonCTS and Signal Integrity
+<details>
+  
+  <summary>Run CTS</summary>
+
+- To run CTS we need to type the command
+```
+run_cts
+```
+
+![s17ctsrun](https://github.com/Srini-web/pes_pd/assets/77874288/76efea91-25af-4bcc-834d-2a3546f6dd3b)
+
+- New .v is created
+  
+![s18vfiletrim](https://github.com/Srini-web/pes_pd/assets/77874288/7fb38b09-7381-45b6-8b0d-8d79b8c0e831)
+
+</details>
+
+<details>
+  
+  <summary>Timing Analysis with Real CLocks using OpenSTA</summary>
+
+- First we type the command
+```
+openroad
+```
+- Then we read the .lef file using the command
+```
+read_lef /openLANE_flow/designs/picorv32a/runs/16-09_19-58/tmp/merged.lef
+```
+- Then we read the .def file.
+```
+read_def /openLANE_flow/designs/picorv32a/runs/16-09_19-58/results/cts/picorv32a.cts.def
+```
+
+![s19opnrdlefdef](https://github.com/Srini-web/pes_pd/assets/77874288/d90a65d1-102e-4bcd-95ab-5536549f22e7)
+
+- We then do
+```
+write_db pico_cts.db
+read_db pico_cts.db
+read_verilog /openLANE_flow/designs/picorv32a/runs/16-09_19-58/results/synthesis/picorv32a.synthesis_cts.v
+read_liberty -max $::env(LIB_SLOWEST)
+read_liberty -max $::env(LIB_FASTEST)
+```
+- We read the .src file.
+```
+read_sdc /openLANE_flow/designs/picorv32a/src/sky130/my_base.sdc
+```
+- We set the clock
+```
+set_propagated_clock [all_clocks]
+```
+- Checking the report
+```
+report_checks -path_delay min_max -format full_clock_expanded -digits 4
+```
+
+![p20sdcop1](https://github.com/Srini-web/pes_pd/assets/77874288/7ee00b5d-4b61-413a-9427-d936f44efe07)
+
+- Above results are displayed
+
+![p21abvrslt](https://github.com/Srini-web/pes_pd/assets/77874288/c145e05b-75cb-46b5-b8ff-cd87c84deae4)
+
+- We perform it again for a more accurate result
+
+![s22accurate](https://github.com/Srini-web/pes_pd/assets/77874288/9b0dfe39-aafd-48a0-81a8-5d7ed7877d67)
+
+- Above results are displayed
+
+![p22last](https://github.com/Srini-web/pes_pd/assets/77874288/c5df6ad9-cb00-40c0-b418-59c759ae71ac)
+
+```
+report_clock_skew -hold
+report clock_skew -setup
+```
 
