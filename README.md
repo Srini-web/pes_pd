@@ -754,3 +754,98 @@ report_clock_skew -hold
 report clock_skew -setup
 ```
 </details>
+
+## Day 5
+### Final steps for RTL2GDS using tritonRoute and openSTA
+#### Theory
+
+<details>
+  
+  <summary>Power Distribution Network</summary>
+  After generating our clock tree network and verifying post routing STA checks we are ready to generate the power distribution network ```gen_pdn``` in OpenLANE:
+  - The PDN tool helps generate information about the power distribution network such as 
+      - Power ring global to the entire core
+      - Power halo local to any preplaced cells
+      - Power straps to bring power into the center of the chip
+      - Power rails for the standard cells
+  
+</details>
+
+<details>
+
+  <summary>Global and Detailed Routing</summary>
+  
+  OpenLANE uses TritonRoute as the routing engine ```run_routing``` for physical implementations of designs. Routing consists of two stages:
+
+- Global Routing - Routing guides are generated for interconnects on our netlist defining what layers, and where on the chip each of the nets will be reputed
+- Detailed Routing - Metal traces are iteratively laid across the routing guides to physically implement the routing guides
+
+If DRC errors persist after routing the user has two options:
+
+- Re-run routing with higher QoR settings
+- Manually fix DRC errors specific in tritonRoute.drc file
+  
+</details>
+
+#### Labs
+
+<details>
+  
+  <summary>Power Distribution Network</summary>
+
+- We need to first build Power Distribution Network 
+- To do this first we type
+```
+gen_pdn
+```
+![s1pdnrun](https://github.com/Srini-web/pes_pd/assets/77874288/6456aaa5-0b09-4ee3-a0ea-882e791bcb9b)
+
+- From this, we derive information about rails and straps padding the cell units and interconnects
+
+![s2pdninfo](https://github.com/Srini-web/pes_pd/assets/77874288/88bf5437-566c-452b-a161-4b7dac2efa01)
+
+- After which the path of pdn file generated can be extracted using the command
+```
+echo $::env(CURRENT_DEF)
+```
+</details>
+
+<details>
+  
+  <summary>Routing and routing info</summary>
+  - Routing in VLSI is making physical connections between signal pins using metal layers. Following Clock Tree Synthesis (CTS) and optimization, the routing step determines the exact pathways for interconnecting standard cells, macros, and I/O pins
+- To run the rounting we type 
+
+```
+run_routing
+```
+-That is when we get an output conatining all routing information
+![s4runrouting](https://github.com/Srini-web/pes_pd/assets/77874288/c7fae964-86e1-451b-a4f6-b600910e312f)
+
+-Routing violations are stored in a drc folder which we can use to check for violations using the command
+
+- To check for DRC errors we need to check the 'tritonRoute.drc' folder
+```
+less /openLANE_flow/designs/picorv32a/runs/16-09_06-22/reports/routing/tritonRoute.drc
+```
+</details>
+
+<details>
+  
+  <summary>SPEF Extraction</summary>
+
+- To extract the parasitics we need to use an extractor engine.
+- We use the SPEF Extraction.
+- To use this engine we need to go to
+```
+cd Desktop/work/tools/SPEF_Extractor
+```
+- Next, we need to use this command
+  
+```
+python3 /home/srinidhibs/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/16-09_19-58/tmp/merged.lef /home/srinidhibs/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/16-09_19-58/results/routing/picorv32a.def
+```
+- The SPEF File will be generated in the location where def file is present
+  
+</details>
+
