@@ -331,5 +331,208 @@ magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs
 - If we zoom in we can see the placement of the standard cells in the standard cell rows.
 </details>
 
+## Day3
+### Design library cell using Magic Layout and ngspice characterization
+#### Theory
+
+<details>
+  
+  <summary>Inception of Layout and CMOS Fabrication Process</summary>
+     SPICE Deck Creation for CMOS Inverter
+      - SPICE Deck is a netlist that has information on:
+        - component connectivity 
+        - component values
+        - identifying the nodes
+        - giving a designation to the nodes
+
+**SPICE Simulation and Switching Threshold**
+
+![p1](https://github.com/Srini-web/pes_pd/assets/77874288/c38f2267-31ae-41d4-9f29-010b4383c0ff)
+
+- The CMOS on the right side has a bigger size than the one on the left.
+- These waveforms tell us that the CMOS is a very robust device. The characteristics of the CMOS are maintained across a variety of sizes.
+- The arrow is pointing to the point where 'Vin = Vout'.
+
+![p2](https://github.com/Srini-web/pes_pd/assets/77874288/a9b6b073-4b4d-4dfa-a5cf-a1a42f33d4a5)
+
+- Above graph gives details on each point and its significance
+
+ </details>
+
+<details>
+  
+  <summary>16 Mask CMOS Process</summary>
+
+1) Selecting a Substrate - Selecting the appropriate substrate to synthsize the design on.
+2) Creating active reagion for transistors - Adding layers of SiO2(40nm), Si3N4(80nm) and photoresist(1um). On top of the photoresist we put a mask layer. Pass UV light and remove the mask. Resist is removed. LOCOS(Local Oxidation of Silicon) is performed. Si3N4 is etched.
+3) N-Well and P-Well formation - The next masks are used to create the source and drain regions of the MOSFETs. Boron is used to make P-Well using ion implantation. Phosphorus is used to create N-Well. Put the MOSFET in a Drive In furnace.
+4) Formation of Gate - Gate formation involves depositing a gate oxide, defining gate patterns using photolithography, depositing gate material, etching to create gates, doping the substrate and insulating the gates.
+5) Lightly Doped Drain Formation(LDD) - Lightly doped drain (LDD) formation involves implanting the drain and source regions of a MOSFET transistor with a lighter concentration of dopants to reduce hot electron effect and short channel effect and enhance device performance.
+6) Source and Drain Formation - Source and drain formation in a MOSFET transistor typically involves doping the silicon substrate with chemicals such as arsenic or phosphorous for n-type regions (source and drain) and boron for p-type regions (source and drain). High temperature annealing is performed.
+7) Steps to form Contacts and Interconnects(local) - Titanium is deposited with a process known as sputtering. Wafer is heated to about 650 - 700 C in an N2 ambient furnace for 60 seconds. TiSi2 contacts are formed.  TiN is also formed used for local communication. TiN is etched using RCA cleaning.
+8) Higher Level Metal Formation - Forming contacts and interconnects locally involves depositing a dielectric material like silicon dioxide, patterning it using photolithography, etching contact holes, depositing a barrier metal (e.g., titanium or titanium nitride), filling with a conductor (e.g., aluminum or copper) using chemical vapor deposition (CVD), and then planarizing through chemical-mechanical polishing (CMP).
+   
+</details>
+
+#### Labs
+<details>
+  
+  <summary>A Git Clone and some other Steps</summary>
+
+- We need to perform a git clone here from a repository that we require, to do the future labs.
+- We can type the following command
+```
+git clone https://github.com/nickson-jose/vsdstdcelldesign.git
+```
+
+- Now we need to copy the 'sky130A.tech' file into the directory we just cloned
+- We can do this by using
+```
+cp sky130A.tech /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/vsdstdcelldesign
+```
+![s2](https://github.com/Srini-web/pes_pd/assets/77874288/43fdcb64-188b-4467-8e76-d1de2cf45af3)
+
+![s3](https://github.com/Srini-web/pes_pd/assets/77874288/c3702505-5c1f-4e13-987d-d2d70c33f8dd)
+
+</details>
+
+<details>
+  
+  <summary>Sky130 Basic Layers Layout and LEF using Inverter</summary>
+
+- Now let us look at the layout of a CMOS inverter. To open this we type the command
+
+![s4](https://github.com/Srini-web/pes_pd/assets/77874288/eaeeb1ac-6f46-4bd9-82ca-90350655c1a8)
+
+```
+ magic -T sky130A.tech sky130_inv.mag &
+```
+
+![s5](https://github.com/Srini-web/pes_pd/assets/77874288/be3296b1-f851-42fd-a4af-6bb21ec26965)
+
+- We can get to know the details of the inverter by hovering the mouse cursor over it and pressing 's' on the keyboard. Then we can type ```what``` in the tkcon.
+- Pressing 's' three times will show what parts are connected to the selected part.
+
+- We shall look at the difference between LEF and Layout. The above image is a Layout.
+- LEF represents abstract component data in a machine-readable format for IC libraries, while layout is the physical geometric arrangement of these components on a semiconductor chip.
+
+</details>
+  
+<details>
+  
+  <summary>Steps to Create Standard Cell Layout and Extract Spice Netlist</summary>
+
+- DRC errors can be viewed in the tkcon.
+
+To extract Spice Netlist we perform the following steps in the tkcon window:
+- We use the commands
+```
+ext2spice cthresh 0 rthresh 0 -> this is done to copy the parasitic capacitances
+```
+- The next command is
+```
+ext2spice
+```
+
+![s6](https://github.com/Srini-web/pes_pd/assets/77874288/4bdda6f9-cdee-4eaf-878f-1caeab914568)
+
+- We can see that a sky130_inv.spice file is created
+</details>
+
+<details>
+  
+  <summary>Sky130 Tech File Labs</summary>
+  
+**Create Final SPICE Deck**
+- To start off we look at the minimum value of the layout window.
+- We can use 'g' on the keyboard to activate the grid and after selecting a grid by right clicking on the mouse, we type ```box``` in tkcon window to check the minimum value of the layout window.
+- Next we need to open the spice file using the command
+```
+gedit sky130_inv.spice
+```
+- We need to configure it to the above specifications.
+
+**Characterize Inverter using Sky130 Models**
+
+![s7](https://github.com/Srini-web/pes_pd/assets/77874288/f6e64a7c-b00a-4dfc-8ee8-077c37dc7b6a)
+
+- We now plot the graph for output vs input sweeping the time.
+- We first use the command
+```
+ngspice sky130_inv.spice
+```
+- In the ngspice shell we use the command
+```
+plot y vs time a
+```
+- The following graph is displayed.
+![s8](https://github.com/Srini-web/pes_pd/assets/77874288/73589a16-9ae9-4fa3-b2ed-19ce65981051)
+
+- Rise Time -> time taken to rise from 20% to 80% of the max value -> 2.25075e-09 - 2.184e-09 = 0.006675e-09 s.
+- Propogation Delay/Cell Rise Delay -> 2.21379e-09 - 2.15e-09 = 0.06379e-09 s.
+</details>
+
+<details>
+  
+  <summary>Sky130 PDKS and Steps to Download Magic Tool</summary>
+
+- Enter the command
+```
+ wget http://opencircuitdesign.com/open_pdks/archive/drc_tests.tgz
+```
+- Move the file to desktop using
+```
+mv drc_tests.tgz Desktop/
+```
+- Extract the file using
+```
+tar xfz drc_tests.tgz 
+```
+![s9magicdwn](https://github.com/Srini-web/pes_pd/assets/77874288/a656595e-dffa-4845-8cd7-59eb6c39e4e1)
+
+- Do ```ls``` to view all the files in it.
+
+To open the software we type
+```
+magic -d XR
+```
+- We click 'file' and open the 'met3.mag' file.
+![s10magicaccess](https://github.com/Srini-web/pes_pd/assets/77874288/cd2733a1-35aa-4f54-9612-c6a124620d19)
+
+- If we select an area and type ```drc why``` in the tkcon wndow, it will show us the DRC error.
+- To add contact cuts to metal3, first select an area using left and right click. Then hovering over the m3contact we click middle mouse button.
+  
+</details>
+
+<details>
+  
+  <summary>Fixing DRC Errors</summary>
+
+- There is a DRC error in the poly.mag file in 'poly.9'.
+- Open the sky130A.tech file in the editor and make the following changes
+  
+![s11polyedit](https://github.com/Srini-web/pes_pd/assets/77874288/60e2ac10-0da4-44d9-b580-d4f10f89766d)
+
+- Now open the tkcon window and type
+```
+load tech sky130A.tech
+drc check
+```
+![s12polyerror](https://github.com/Srini-web/pes_pd/assets/77874288/23a9d796-430c-487a-8556-2891ecd1a8b7)
+
+- As we can see the error is fixed.
+
+**DRC Error as Geometrical Construct**
+- We open the nwell.mag file.
+```
+cif ostyle grc
+cif see dnwell_shrink
+cif see nwell_missing
+```
+- We type the above commands
+- The following is displayed
+
+  ![s14nwellerror](https://github.com/Srini-web/pes_pd/assets/77874288/897c7e2d-2120-4201-aca4-0ac6c6405602)
+</details>
 
 
