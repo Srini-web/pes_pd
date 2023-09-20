@@ -639,7 +639,7 @@ magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs
 
 ###### The Floorplan zoomed in and instace id as filled in the sheets
 <details>
-  <summary>The Floorplan zoomed </summary>
+  <summary>The sky130_vsdinv instance </summary>
   
    ![INSTANCE](https://github.com/Srini-web/pes_pd/assets/77874288/14360d13-8fde-4878-bce1-d4ddd873ffa1)
    
